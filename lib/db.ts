@@ -18,11 +18,10 @@ export async function ensureSchema() {
       updated_at TIMESTAMP DEFAULT NOW()
     )
   `
-  for (const nombre of GRANJAS) {
-    await sql`
-      INSERT INTO granjas (nombre) VALUES (${nombre})
-      ON CONFLICT (nombre) DO NOTHING
-    `
-  }
+  await sql`
+    INSERT INTO granjas (nombre)
+    SELECT unnest(${GRANJAS}::text[])
+    ON CONFLICT (nombre) DO NOTHING
+  `
   schemaReady = true
 }

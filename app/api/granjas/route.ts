@@ -5,14 +5,20 @@ import type { Estado } from '@/lib/granjas'
 const VALID_ESTADOS: Estado[] = ['verde', 'amarillo', 'rojo']
 
 export async function GET() {
-  await ensureSchema()
-  const sql = getDb()
-  const rows = await sql`
-    SELECT id, nombre, estado, updated_at
-    FROM granjas
-    ORDER BY nombre ASC
-  `
-  return NextResponse.json({ granjas: rows })
+  try {
+    await ensureSchema()
+    const sql = getDb()
+    const rows = await sql`
+      SELECT id, nombre, estado, updated_at
+      FROM granjas
+      ORDER BY nombre ASC
+    `
+    return NextResponse.json({ granjas: rows })
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : String(e)
+    console.error('GET /api/granjas failed:', msg)
+    return NextResponse.json({ error: `DB error: ${msg}` }, { status: 500 })
+  }
 }
 
 export async function PATCH(req: NextRequest) {
