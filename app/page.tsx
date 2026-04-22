@@ -20,13 +20,27 @@ export default function HomePage() {
 
   useEffect(() => {
     let cancelled = false
-    fetch('/api/granjas')
-      .then(r => r.json())
-      .then(data => {
-        if (!cancelled) setGranjas(data.granjas || [])
-      })
-      .catch(() => !cancelled && setError('Error al cargar las granjas'))
-      .finally(() => !cancelled && setLoading(false))
+    ;(async () => {
+      try {
+        const res = await fetch('/api/granjas')
+        const text = await res.text()
+        if (cancelled) return
+        if (!res.ok) {
+          setError(`HTTP ${res.status}: ${text.slice(0, 500)}`)
+          return
+        }
+        try {
+          const data = JSON.parse(text)
+          setGranjas(data.granjas || [])
+        } catch {
+          setError(`Respuesta no-JSON (HTTP ${res.status}): ${text.slice(0, 300)}`)
+        }
+      } catch (e) {
+        if (!cancelled) setError(`Fetch falló: ${e instanceof Error ? e.message : String(e)}`)
+      } finally {
+        if (!cancelled) setLoading(false)
+      }
+    })()
     return () => {
       cancelled = true
     }
