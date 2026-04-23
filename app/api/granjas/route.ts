@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ensureSchema, getDb } from '@/lib/db'
 import type { Estado } from '@/lib/granjas'
 
+export const dynamic = 'force-dynamic'
+export const revalidate = 0
+
 const VALID_ESTADOS: Estado[] = ['verde', 'amarillo', 'rojo']
 
 export async function GET() {

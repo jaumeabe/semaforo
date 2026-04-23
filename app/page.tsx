@@ -22,7 +22,7 @@ export default function HomePage() {
     let cancelled = false
     ;(async () => {
       try {
-        const res = await fetch('/api/granjas')
+        const res = await fetch('/api/granjas', { cache: 'no-store' })
         const text = await res.text()
         if (cancelled) return
         if (!res.ok) {

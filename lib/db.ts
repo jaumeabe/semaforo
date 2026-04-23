@@ -8,20 +8,24 @@ export function getDb() {
 let schemaReady = false
 
 export async function ensureSchema() {
-  if (schemaReady) return
   const sql = getDb()
+  if (!schemaReady) {
+    await sql`
+      CREATE TABLE IF NOT EXISTS granjas (
+        id SERIAL PRIMARY KEY,
+        nombre VARCHAR(100) UNIQUE NOT NULL,
+        estado VARCHAR(20) NOT NULL DEFAULT 'verde',
+        updated_at TIMESTAMP DEFAULT NOW()
+      )
+    `
+    await sql`
+      INSERT INTO granjas (nombre)
+      SELECT unnest(${GRANJAS}::text[])
+      ON CONFLICT (nombre) DO NOTHING
+    `
+    schemaReady = true
+  }
   await sql`
-    CREATE TABLE IF NOT EXISTS granjas (
-      id SERIAL PRIMARY KEY,
-      nombre VARCHAR(100) UNIQUE NOT NULL,
-      estado VARCHAR(20) NOT NULL DEFAULT 'verde',
-      updated_at TIMESTAMP DEFAULT NOW()
-    )
+    DELETE FROM granjas WHERE nombre IN ('ALMACEN', 'CAMPOS', 'PISO', 'LAVADERO', 'NEW 4')
   `
-  await sql`
-    INSERT INTO granjas (nombre)
-    SELECT unnest(${GRANJAS}::text[])
-    ON CONFLICT (nombre) DO NOTHING
-  `
-  schemaReady = true
 }
