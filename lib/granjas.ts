@@ -79,6 +79,7 @@ export const MADRES = new Set([
   'SISALLAR 1',
   'SISALLAR 3',
   'SISALLAR 4',
+  'ALFUSPI',
 ])
 
 export type Estado = 'verde' | 'amarillo' | 'rojo'
