@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ESTADO_COLORS, NEXT_ESTADO, type Estado } from '@/lib/granjas'
+import { ESTADO_COLORS, MADRES, NEXT_ESTADO, type Estado } from '@/lib/granjas'
 
 type Granja = {
   id: number
@@ -55,6 +55,9 @@ export default function HomePage() {
       { verde: 0, amarillo: 0, rojo: 0 } as Record<Estado, number>,
     )
   }, [granjas])
+
+  const granjasMadres = useMemo(() => granjas.filter(g => MADRES.has(g.nombre)), [granjas])
+  const granjasOtras = useMemo(() => granjas.filter(g => !MADRES.has(g.nombre)), [granjas])
 
   const handleClick = async (g: Granja) => {
     if (savingId !== null) return
@@ -147,59 +150,44 @@ export default function HomePage() {
         </p>
       )}
 
-      <section
-        style={{
-          maxWidth: 1400,
-          margin: '0 auto',
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
-          gap: 12,
-        }}
-      >
-        {loading
-          ? Array.from({ length: 12 }).map((_, i) => (
-              <div
-                key={i}
-                style={{
-                  height: 90,
-                  background: '#e5e7eb',
-                  borderRadius: 12,
-                  animation: 'pulse 1.5s ease-in-out infinite',
-                }}
-              />
-            ))
-          : granjas.map(g => (
-              <button
-                key={g.id}
-                onClick={() => handleClick(g)}
-                disabled={savingId !== null}
-                style={{
-                  minHeight: 90,
-                  padding: '16px 12px',
-                  background: ESTADO_COLORS[g.estado],
-                  border: 'none',
-                  borderRadius: 12,
-                  color: g.estado === 'amarillo' ? '#1f2937' : '#fff',
-                  fontSize: 16,
-                  fontWeight: 700,
-                  letterSpacing: 0.3,
-                  cursor: savingId !== null ? 'wait' : 'pointer',
-                  boxShadow:
-                    savingId === g.id
-                      ? '0 0 0 3px rgba(68,114,196,0.5)'
-                      : '0 2px 6px rgba(0,0,0,0.08)',
-                  transition: 'background 0.2s, transform 0.05s',
-                  textAlign: 'center',
-                  wordBreak: 'break-word',
-                }}
-                onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.97)')}
-                onMouseUp={e => (e.currentTarget.style.transform = 'scale(1)')}
-                onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
-              >
-                {g.nombre}
-              </button>
-            ))}
-      </section>
+      {loading ? (
+        <section
+          style={{
+            maxWidth: 1400,
+            margin: '0 auto',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+            gap: 12,
+          }}
+        >
+          {Array.from({ length: 12 }).map((_, i) => (
+            <div
+              key={i}
+              style={{
+                height: 90,
+                background: '#e5e7eb',
+                borderRadius: 12,
+                animation: 'pulse 1.5s ease-in-out infinite',
+              }}
+            />
+          ))}
+        </section>
+      ) : (
+        <>
+          <GranjaGroup
+            title="Granjas de Madres"
+            granjas={granjasMadres}
+            savingId={savingId}
+            onClickGranja={handleClick}
+          />
+          <GranjaGroup
+            title="Otras Granjas"
+            granjas={granjasOtras}
+            savingId={savingId}
+            onClickGranja={handleClick}
+          />
+        </>
+      )}
 
       <style>{`
         @keyframes pulse {
@@ -208,6 +196,84 @@ export default function HomePage() {
         }
       `}</style>
     </main>
+  )
+}
+
+function GranjaGroup({
+  title,
+  granjas,
+  savingId,
+  onClickGranja,
+}: {
+  title: string
+  granjas: Granja[]
+  savingId: number | null
+  onClickGranja: (g: Granja) => void
+}) {
+  return (
+    <div style={{ maxWidth: 1400, margin: '0 auto 32px' }}>
+      <h2
+        style={{
+          fontSize: 18,
+          fontWeight: 700,
+          color: '#2f5496',
+          marginBottom: 12,
+          paddingBottom: 6,
+          borderBottom: '2px solid #d6dce4',
+        }}
+      >
+        {title}
+        <span
+          style={{
+            marginLeft: 10,
+            fontSize: 14,
+            fontWeight: 500,
+            color: '#6b7280',
+          }}
+        >
+          ({granjas.length})
+        </span>
+      </h2>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))',
+          gap: 12,
+        }}
+      >
+        {granjas.map(g => (
+          <button
+            key={g.id}
+            onClick={() => onClickGranja(g)}
+            disabled={savingId !== null}
+            style={{
+              minHeight: 90,
+              padding: '16px 12px',
+              background: ESTADO_COLORS[g.estado],
+              border: 'none',
+              borderRadius: 12,
+              color: g.estado === 'amarillo' ? '#1f2937' : '#fff',
+              fontSize: 16,
+              fontWeight: 700,
+              letterSpacing: 0.3,
+              cursor: savingId !== null ? 'wait' : 'pointer',
+              boxShadow:
+                savingId === g.id
+                  ? '0 0 0 3px rgba(68,114,196,0.5)'
+                  : '0 2px 6px rgba(0,0,0,0.08)',
+              transition: 'background 0.2s, transform 0.05s',
+              textAlign: 'center',
+              wordBreak: 'break-word',
+            }}
+            onMouseDown={e => (e.currentTarget.style.transform = 'scale(0.97)')}
+            onMouseUp={e => (e.currentTarget.style.transform = 'scale(1)')}
+            onMouseLeave={e => (e.currentTarget.style.transform = 'scale(1)')}
+          >
+            {g.nombre}
+          </button>
+        ))}
+      </div>
+    </div>
   )
 }
 

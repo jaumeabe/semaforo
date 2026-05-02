@@ -54,6 +54,33 @@ export const GRANJAS: string[] = [
   'BORGES',
 ]
 
+export const MADRES = new Set([
+  'CARTUJA 1',
+  'CARTUJA 2',
+  'CASERIO',
+  'CASTELLNOU',
+  'EL SOLER',
+  'FAYON ABUELAS',
+  'FUSTERO',
+  'GRANADELLA',
+  'LA GUINEU',
+  'LA INDUSTRIAL',
+  'LA MASIA',
+  'LES SERRES',
+  'MARRUGAT',
+  'NOVIPORC',
+  'PASCUALET',
+  'EL PI',
+  'PORCELIBOR',
+  'PORDALL',
+  'PORDECONA',
+  'SANTAROSA',
+  'SINOGA',
+  'SISALLAR 1',
+  'SISALLAR 3',
+  'SISALLAR 4',
+])
+
 export type Estado = 'verde' | 'amarillo' | 'rojo'
 
 export const ESTADO_COLORS: Record<Estado, string> = {
