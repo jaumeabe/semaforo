@@ -51,6 +51,7 @@ export const GRANJAS: string[] = [
   'LECIÑENA',
   'FAYON 3',
   'ARESTE',
+  'BORGES',
 ]
 
 export type Estado = 'verde' | 'amarillo' | 'rojo'
